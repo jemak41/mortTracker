@@ -1,0 +1,64 @@
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy import Table, Integer, String, DateTime, BigInteger, Column, CHAR, ForeignKey
+from sqlalchemy.sql import text
+from datetime import datetime
+
+
+engine = create_engine('sqlite:///mort.db')
+
+conn = engine.connect()
+
+metadata = MetaData()
+
+account1 = Table('account1', metadata,
+                Column('ID', Integer, primary_key=True),
+                Column('Title', String),
+                Column('Type', String, ForeignKey('type.ID')),
+                Column('Principal', BigInteger),
+                Column('InterestRate', Integer),
+                Column('Terms', Integer),
+                Column('Status', Integer, ForeignKey('status.ID')),
+                Column('Location', String),
+                Column('StartDate', DateTime),
+                Column('ContractStartDate', DateTime),
+                Column('Timestamp', DateTime),
+                Column('Remarks', String)
+                )
+                """"
+                Column('EndDate', DateTime),
+                Column('Delinquent', CHAR),
+                Column('NextPayment', DateTime)
+                )
+                """
+
+sql = 'insert into account1 ' \
+      '(Title, Type, Principal, InterestRate, Terms, Status, Location, StartDate, Timestamp) ' \
+      'select Title, Type, Principal, InterestRate, Terms, Status, Location, StartDate, :a ' \
+      'from account'
+
+status = Table('status', metadata,
+               Column('ID', Integer, primary_key=True),
+               Column('Status', String),
+               Column('Description', String)
+               )
+
+type = Table('type', metadata,
+             Column('ID', Integer, primary_key=True),
+             Column('TypeName', String),
+             Column('TypeofPayment', String)
+             )
+
+realtime = Table('realtime', metadata,
+                 Column('ID', Integer, primary_key=True),
+                 Column('AccountID', Integer, ForeignKey('account.ID')),
+                 Column('PaymentAmount', Integer),
+                 Column('MonthsPayment', Integer),
+                 Column('Fees', Integer),
+                 Column('Comments', String),
+                 Column('DoP', DateTime)
+                 )
+
+realtime.create(engine)
+account.create(engine)
+status.create(engine)
+type.create(engine)
