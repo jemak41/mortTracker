@@ -1,0 +1,197 @@
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy import Table, Integer, String, DateTime, BigInteger, Column, CHAR, ForeignKey
+from sqlalchemy.sql import text
+from datetime import datetime as dt
+
+engine = create_engine('sqlite:///mort.db')
+
+conn = engine.connect()
+
+metadata = MetaData()
+
+def main():
+
+    x = mainMenu()
+    if x % 2:
+        add(x)
+    else:
+        edit(x)
+
+def add(opt):
+    tab = ''
+    if opt == 1:
+        tab = 'account'
+    elif opt == 3:
+        tab = 'realtime'
+    elif opt == 5:
+        tab = 'status'
+    elif opt == 7:
+        tab = 'type'
+
+    a = Table(tab, metadata, autoload=True, autoload_with=engine)
+    fields = [x.name for x in a.c]
+
+    INPUTS = (askField(fields))
+    SQL = (creatingSQL('add', tab, fields, 0))
+
+    print(SQL)
+    for b in range(len(INPUTS)):
+        print(INPUTS[b])
+
+    if opt == 1:
+        conn.execute(SQL, a1=INPUTS[0], a2=INPUTS[1], a3=INPUTS[2], a4=INPUTS[3], a5=INPUTS[4], a6=INPUTS[5], a7=INPUTS[6], a8=INPUTS[7], a9=INPUTS[8], a10=INPUTS[9], a11=INPUTS[10])
+    elif opt == 3:
+        conn.execute(SQL, a1=INPUTS[0], a2=INPUTS[1], a3=INPUTS[2], a4=INPUTS[3], a5=INPUTS[4], a6=INPUTS[5])
+    elif opt == 5:
+        conn.execute(SQL, a1=INPUTS[0], a2=INPUTS[1])
+    elif opt == 7:
+        conn.execute(SQL, a1=INPUTS[0], a2=INPUTS[1])
+
+
+
+def edit(opt):
+    tab = ''
+    tabID = 0
+    if opt == 2:
+        tab = 'account'
+    elif opt == 4:
+        tab = 'realtime'
+    elif opt == 6:
+        tab = 'status'
+    elif opt == 8:
+        tab = 'type'
+
+    a = Table(tab, metadata, autoload=True, autoload_with=engine)
+    fields = [x.name for x in a.c]
+
+    #Get the ID
+    for a in engine.execute('select * from ' + tab):
+        print(a)
+    print('')
+
+    tabID = input('Select ID you want to edit >>> ')
+
+
+    INPUTS = (askField(fields))
+    SQL = (creatingSQL('edit', tab, INPUTS, tabID))
+
+    print(SQL)
+
+    for x in range(len(inpval)):
+        print(inpval[x][1])
+
+
+    if len(inpval) == 1:
+        conn.execute(SQL, a0=inpval[0][1])
+    elif len(inpval) == 2:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1])
+    elif len(inpval) == 3:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1])
+    elif len(inpval) == 4:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1])
+    elif len(inpval) == 5:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1])
+    elif len(inpval) == 6:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1])
+    elif len(inpval) == 7:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1], a6=inpval[6][1])
+    elif len(inpval) == 8:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1], a6=inpval[6][1], a7=inpval[7][1])
+    elif len(inpval) == 9:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1], a6=inpval[6][1], a7=inpval[7][1], a8=inpval[8][1])
+    elif len(inpval) == 10:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1], a6=inpval[6][1], a7=inpval[7][1], a8=inpval[8][1], a9=inpval[9][1])
+    elif len(inpval) == 11:
+        conn.execute(SQL, a0=inpval[0][1], a1=inpval[1][1], a2=inpval[2][1], a3=inpval[3][1], a4=inpval[4][1], a5=inpval[5][1], a6=inpval[6][1], a7=inpval[7][1], a8=inpval[8][1], a9=inpval[9][1], a10=inpval[10][1])
+
+
+
+def creatingSQL(mod, table, field, tabID):
+    if mod == 'add':
+        x = 1
+        sql = 'insert into ' + table + ' ('
+        val = ') values('
+        while x < len(field):
+            sql += field[x]
+            val += ':a' + str(x)
+            if x != (len(field)-1):
+                sql += ', '
+                val += ', '
+            x += 1
+        return sql + val + ')'
+
+    elif mod == 'edit':
+        a = Table(table, metadata, autoload=True, autoload_with=engine)
+        Col = [x.name for x in a.c]
+        global inpval
+        inpval = {}
+        x = 1
+        y = 0
+        z = 0
+        sql = 'update ' + table + ' set '
+        while x <= len(field):
+            if field[y]:
+                """"
+                if z == 1:
+                    sql += ', '
+                sql += Col[x] + '=:a' + str(z)
+                inpval.update({'a'+str(x): field[y]})
+                if x != len(field) and z != 0:
+                    sql += ', '
+                """
+                if z == 0:
+                    pass
+                elif z > 0:
+                    sql += ', '
+                sql += Col[x] + '=:a' + str(z)
+                inpval.update({'a' + str(x): field[y]})
+                z += 1
+            x += 1
+            y += 1
+        wer = ' where ID =' + tabID
+        sql += wer
+        inpval = list(inpval.items())
+        return sql
+
+
+def askField(field):
+
+    ins = []
+    x = 1
+    while x < len(field):
+        if field[x] == 'Timestamp':
+            ins.append(dt.now())
+        else:
+            ins.append(input(field[x] + '? >>> '))
+        x += 1
+    return ins
+
+
+def mainMenu():
+    while True:
+
+        menuChoice = 0
+
+        print('What do you want to do?')
+        print('')
+        print('1. Add Account')
+        print('2. Edit Account')
+        print('3. Add Payment')
+        print('4. Edit Payment')
+        print('5. Add Status')
+        print('6. Edit Status')
+        print('7. Add Type')
+        print('8. Edit Type')
+        print('0. Exit')
+        print('')
+
+        menuChoice = int(input('>>> '))
+
+        if menuChoice == 0:
+            exit()
+        else:
+            return menuChoice
+
+
+if __name__ == '__main__':
+    main()
